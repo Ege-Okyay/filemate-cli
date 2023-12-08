@@ -9,7 +9,8 @@ import (
 )
 
 func registerCommands() {
-	helpers.RegisterCommand("hello", cmd.HelloCmd)
+	helpers.RegisterCommand("hello", cmd.HelloCmd, "Says Hello", "hello [name]")
+	helpers.RegisterCommand("--help", cmd.HelpCmd, "Shows Help", "help")
 }
 
 func CliProgram() error {
@@ -25,9 +26,6 @@ func CliProgram() error {
 	cmd, err := helpers.FindCommandByName(cmdArg)
 	if err != nil {
 		return err
-	}
-	if cmd == nil {
-		return fmt.Errorf("Command not found: %s\n", cmdArg)
 	}
 
 	argsForFunction := helpers.ExtractArguments(args)

@@ -3,27 +3,41 @@ package helpers
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/Ege-Okyay/filemate-cli/structs"
 )
 
-var functionMap = make(map[string]interface{})
+var commandMap = []structs.Command{}
 
-func RegisterCommand(name string, fn interface{}) {
-	functionMap[name] = fn
-}
-
-func FindCommandByName(name string) (interface{}, error) {
-	fn, found := functionMap[name]
-	if !found {
-		return nil, fmt.Errorf("Function not found: %s", name)
+func RegisterCommand(name string, fn interface{}, desc string, usage string) {
+	newCommand := structs.Command{
+		Name:  name,
+		Fn:    fn,
+		Desc:  desc,
+		Usage: usage,
 	}
-	return fn, nil
+	commandMap = append(commandMap, newCommand)
 }
 
-func CallCommand(fn interface{}, args ...any) error {
-	value := reflect.ValueOf(fn)
+func GetAllCommands() []structs.Command {
+	return commandMap
+}
+
+func FindCommandByName(name string) (*structs.Command, error) {
+	for _, cmd := range commandMap {
+		if cmd.Name == name {
+			return &cmd, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Command not found: %s", name)
+}
+
+func CallCommand(cmd *structs.Command, args ...interface{}) {
+	value := reflect.ValueOf(cmd.Fn)
 
 	if value.Kind() != reflect.Func {
-		return fmt.Errorf("Not a valid function")
+		panic(fmt.Errorf("Not a valid function"))
 	}
 
 	var inputValues []reflect.Value
@@ -31,7 +45,10 @@ func CallCommand(fn interface{}, args ...any) error {
 		inputValues = append(inputValues, reflect.ValueOf(arg))
 	}
 
-	value.Call(inputValues)
+	if len(inputValues) <= 1 {
+		fmt.Println("Usage:", cmd.Usage)
+		return
+	}
 
-	return nil
+	value.Call(inputValues)
 }
