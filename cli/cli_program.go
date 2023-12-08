@@ -1,24 +1,48 @@
 package cli
 
 import (
-	"fmt"
+	"log"
 	"os"
+	"text/template"
 
 	"github.com/Ege-Okyay/filemate-cli/cmd"
 	"github.com/Ege-Okyay/filemate-cli/helpers"
 )
 
 func registerCommands() {
-	helpers.RegisterCommand("hello", cmd.HelloCmd, "Says Hello", "hello [name]")
-	helpers.RegisterCommand("--help", cmd.HelpCmd, "Shows Help", "help")
+	helpers.RegisterCommand("hello", cmd.HelloCmd, "Says Hello", "filemate hello [args]", true)
+	helpers.RegisterCommand("help", cmd.HelpCmd, "Shows Help", "filemate help", false)
+	helpers.RegisterCommand("version", cmd.VersionCommand, "Shows version", "filemate version", false)
 }
 
 func CliProgram() error {
 	registerCommands()
 
 	args := os.Args[1:]
+
 	if len(args) == 0 {
-		return fmt.Errorf("Please provide arg(s)")
+		commands := helpers.GetAllCommands()
+
+		tmpl := `Filemate is a tool for uploading, downloading and sharing files from your terminal.
+
+Usage:
+
+	filemate <command> [arguments]			
+
+The commands are:
+{{range .}}
+	{{.Name}}{{end}}
+
+Use "filemate help <command>" for more information about a command.
+		`
+
+		t := template.Must(template.New("usage").Parse(tmpl))
+		err := t.Execute(os.Stdout, commands)
+		if err != nil {
+			log.Fatal("Error executing template: ", err)
+		}
+
+		return nil
 	}
 
 	cmdArg := args[0]

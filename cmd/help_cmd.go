@@ -2,16 +2,45 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"text/template"
 
 	"github.com/Ege-Okyay/filemate-cli/helpers"
 )
 
 func HelpCmd(args []interface{}) {
-	allCommands := helpers.GetAllCommands()
+	if len(args) > 0 {
+		cmdName := args[0].(string)
 
-	fmt.Println("All Commands\n------------")
-	fmt.Println("usage: git [-v | --version] [-h | --help] [-C <path>] [-c <name>=<value>]\n[--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]\n[-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n[--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]\n[--config-env=<name>=<envvar>] <command> [<args>]")
-	for key := range allCommands {
-		fmt.Println(key)
+		cmd, err := helpers.FindCommandByName(cmdName)
+		if err != nil {
+			log.Fatal("Error while finding command: ", err)
+		}
+
+		fmt.Printf("Usage: %s\n%s", cmd.Usage, cmd.Desc)
+
+		return
+	}
+
+	commands := helpers.GetAllCommands()
+
+	tmpl := `Filemate is a tool for uploading, downloading and sharing files from your terminal.
+
+Usage:
+
+	filemate <command> [arguments]			
+
+The commands are:
+{{range .}}
+	{{.Name}}{{end}}
+
+Use "filemate help <command>" for more information about a command.
+		`
+
+	t := template.Must(template.New("usage").Parse(tmpl))
+	err := t.Execute(os.Stdout, commands)
+	if err != nil {
+		log.Fatal("Error executing template: ", err)
 	}
 }

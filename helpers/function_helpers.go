@@ -9,12 +9,13 @@ import (
 
 var commandMap = []structs.Command{}
 
-func RegisterCommand(name string, fn interface{}, desc string, usage string) {
+func RegisterCommand(name string, fn interface{}, desc string, usage string, requiresArg bool) {
 	newCommand := structs.Command{
-		Name:  name,
-		Fn:    fn,
-		Desc:  desc,
-		Usage: usage,
+		Name:        name,
+		Fn:          fn,
+		Desc:        desc,
+		Usage:       usage,
+		RequiresArg: requiresArg,
 	}
 	commandMap = append(commandMap, newCommand)
 }
@@ -41,12 +42,15 @@ func CallCommand(cmd *structs.Command, args ...interface{}) {
 	}
 
 	var inputValues []reflect.Value
-	for _, arg := range args {
-		inputValues = append(inputValues, reflect.ValueOf(arg))
+
+	if len(args) > 0 {
+		for _, arg := range args {
+			inputValues = append(inputValues, reflect.ValueOf(arg))
+		}
 	}
 
-	if len(inputValues) <= 1 {
-		fmt.Println("Usage:", cmd.Usage)
+	if cmd.RequiresArg && len(inputValues) <= 1 {
+		fmt.Println("Correct usage:", cmd.Usage)
 		return
 	}
 
