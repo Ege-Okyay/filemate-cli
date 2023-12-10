@@ -49,7 +49,7 @@ func CallCommand(cmd *structs.Command, args ...interface{}) {
 		}
 	}
 
-	if cmd.RequiresArg && len(inputValues) <= 1 {
+	if cmd.RequiresArg && len(inputValues) == 0 {
 		fmt.Println("Correct usage:", cmd.Usage)
 		return
 	}

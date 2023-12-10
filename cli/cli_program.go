@@ -11,8 +11,9 @@ import (
 
 func registerCommands() {
 	// DEBUG COMMANDS
-	helpers.RegisterCommand("hello", cmd.HelloCmd, "DEBUG COMMAND Says Hello", "filemate hello [args]", true)
+	helpers.RegisterCommand("hello", cmd.HelloCmd, "DEBUG COMMAND Says Hello", "filemate hello [arguments]", true)
 	helpers.RegisterCommand("health-check", cmd.HealthCheckCmd, "DEBUG COMMAND Sends health check request to the api", "filemate health-check", false)
+	helpers.RegisterCommand("post-check", cmd.PostCheckCmd, "DEBUG COMMAND Sends post check request to the api", "filemate post-check [arguments]", true)
 
 	helpers.RegisterCommand("help", cmd.HelpCmd, "Shows Help", "filemate help", false)
 	helpers.RegisterCommand("version", cmd.VersionCommand, "Shows version", "filemate version", false)
