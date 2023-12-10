@@ -9,13 +9,14 @@ import (
 
 var commandMap = []structs.Command{}
 
-func RegisterCommand(name string, fn interface{}, desc string, usage string, requiresArg bool) {
+func RegisterCommand(name string, fn interface{}, desc string, usage string, category string, numberOfArgsRequired int, argsOptional bool) {
 	newCommand := structs.Command{
-		Name:        name,
-		Fn:          fn,
-		Desc:        desc,
-		Usage:       usage,
-		RequiresArg: requiresArg,
+		Name:                 name,
+		Fn:                   fn,
+		Desc:                 desc,
+		Usage:                usage,
+		NumberOfArgsRequired: numberOfArgsRequired,
+		ArgsOptional:         argsOptional,
 	}
 	commandMap = append(commandMap, newCommand)
 }
@@ -34,7 +35,7 @@ func FindCommandByName(name string) (*structs.Command, error) {
 	return nil, fmt.Errorf("Command not found: %s", name)
 }
 
-func CallCommand(cmd *structs.Command, args ...interface{}) {
+func CallCommand(cmd *structs.Command, args []interface{}) {
 	value := reflect.ValueOf(cmd.Fn)
 
 	if value.Kind() != reflect.Func {
@@ -45,13 +46,29 @@ func CallCommand(cmd *structs.Command, args ...interface{}) {
 
 	if len(args) > 0 {
 		for _, arg := range args {
-			inputValues = append(inputValues, reflect.ValueOf(arg))
+			argValue := reflect.ValueOf(arg)
+
+			if argValue.Kind() == reflect.String {
+				argValue = reflect.ValueOf([]interface{}{arg})
+			}
+
+			if argValue.Kind() == reflect.Ptr {
+				argValue = argValue.Elem()
+			}
+
+			inputValues = append(inputValues, argValue)
 		}
 	}
 
-	if cmd.RequiresArg && len(inputValues) == 0 {
-		fmt.Println("Correct usage:", cmd.Usage)
-		return
+	// Check if the inputValues are less than the required amount
+	if !cmd.ArgsOptional {
+		if len(inputValues) < cmd.NumberOfArgsRequired {
+			fmt.Println("Number of arguments are less than required amount.\nCorrect usage: ", cmd.Usage)
+			return
+		} else if len(inputValues) > cmd.NumberOfArgsRequired {
+			fmt.Println("Number of arguments are more than required amount.\nCorrect usage: ", cmd.Usage)
+			return
+		}
 	}
 
 	value.Call(inputValues)

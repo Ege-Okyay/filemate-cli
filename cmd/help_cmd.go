@@ -9,18 +9,25 @@ import (
 	"github.com/Ege-Okyay/filemate-cli/helpers"
 )
 
-func HelpCmd(args []interface{}) {
+func HelpCmd(args ...interface{}) {
 	if len(args) > 0 {
-		cmdName := args[0].(string)
+		if argSlice, ok := args[0].([]interface{}); ok {
+			if len(argSlice) > 0 {
+				cmdName := argSlice[0].(string)
 
-		cmd, err := helpers.FindCommandByName(cmdName)
-		if err != nil {
-			log.Fatal("Error while finding command: ", err)
+				cmd, err := helpers.FindCommandByName(cmdName)
+				if err != nil {
+					log.Fatal("Error while finding command: ", err)
+				}
+
+				fmt.Printf("Usage: %s\n%s", cmd.Usage, cmd.Desc)
+
+				return
+			} else {
+				log.Fatal("Empty slice of strings")
+				return
+			}
 		}
-
-		fmt.Printf("Usage: %s\n%s", cmd.Usage, cmd.Desc)
-
-		return
 	}
 
 	commands := helpers.GetAllCommands()
