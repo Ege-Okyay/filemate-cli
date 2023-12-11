@@ -60,13 +60,9 @@ func CallCommand(cmd *structs.Command, args []interface{}) {
 		}
 	}
 
-	// Check if the inputValues are less than the required amount
 	if !cmd.ArgsOptional {
-		if len(inputValues) < cmd.NumberOfArgsRequired {
-			fmt.Println("Number of arguments are less than required amount.\nCorrect usage: ", cmd.Usage)
-			return
-		} else if len(inputValues) > cmd.NumberOfArgsRequired {
-			fmt.Println("Number of arguments are more than required amount.\nCorrect usage: ", cmd.Usage)
+		if len(inputValues) != cmd.NumberOfArgsRequired {
+			fmt.Println("Incorrect number of arguments.\nCorrect usage: ", cmd.Usage)
 			return
 		}
 	}
