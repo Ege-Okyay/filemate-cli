@@ -22,6 +22,7 @@ func registerCommands() {
 	// AUTH COMMANDS
 	helpers.RegisterCommand("sign-up", cmd.SignUpCommand, "Creates an account with given username, password and email", "filemate sign-up [username] [email] [password]", "Authentication", 3, false)
 	helpers.RegisterCommand("login", cmd.LoginCommand, "Logs in the user with the entered username or email and password", "filemate login [username or email] [password]", "Authentication", 2, false)
+	helpers.RegisterCommand("logout", cmd.LogoutCommand, "Logs out the user", "filemate logout", "Authentication", 0, false)
 }
 
 func CliProgram() error {

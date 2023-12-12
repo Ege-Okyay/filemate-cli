@@ -5,10 +5,16 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Ege-Okyay/filemate-cli/config"
 	"github.com/Ege-Okyay/filemate-cli/helpers"
 )
 
 func SignUpCommand(args ...interface{}) {
+	if config.GetUserToken() != "" {
+		fmt.Println("Already logged in")
+		return
+	}
+
 	username := args[0].([]interface{})[0].(string)
 	email := args[1].([]interface{})[0].(string)
 	password := args[2].([]interface{})[0].(string)
@@ -49,6 +55,11 @@ func SignUpCommand(args ...interface{}) {
 }
 
 func LoginCommand(args ...interface{}) {
+	if config.GetUserToken() != "" {
+		fmt.Println("Already logged in")
+		return
+	}
+
 	identifier := args[0].([]interface{})[0].(string)
 	password := args[1].([]interface{})[0].(string)
 
@@ -81,8 +92,19 @@ func LoginCommand(args ...interface{}) {
 
 	if success {
 		fmt.Println(resFormat["message"])
-		fmt.Println("---DEBUG--- TOKEN : ", resFormat["token"])
+
+		config.SetUserToken(resFormat["token"].(string))
 	} else {
 		fmt.Println(resFormat["error"])
 	}
+}
+
+func LogoutCommand(args ...interface{}) {
+	if config.GetUserToken() == "" {
+		fmt.Println("You should login first")
+		return
+	}
+
+	config.SetUserToken("")
+	fmt.Println("Successfully logged out")
 }
