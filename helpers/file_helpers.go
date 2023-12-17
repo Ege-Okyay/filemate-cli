@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/Ege-Okyay/filemate-cli/config"
+	"github.com/Ege-Okyay/filemate-cli/structs"
 )
 
 // UploadFile uploads the specified file to the server.
@@ -73,4 +74,66 @@ func UploadFile(fileName string) error {
 	}
 
 	return nil
+}
+
+func UnmarshalFileEntires(filesRaw []interface{}) ([]structs.File, error) {
+	var files []structs.File
+
+	for _, fileRaw := range filesRaw {
+		fileBytes, err := json.Marshal(fileRaw)
+		if err != nil {
+			return nil, err
+		}
+
+		var file structs.File
+		err = json.Unmarshal(fileBytes, &file)
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, file)
+	}
+
+	return files, nil
+}
+
+// FormatFileSize formats the given file size in bytes to a human-readable format.
+func FormatFileSize(size int64) string {
+	const (
+		KB = 1 << (10 * iota)
+		MB
+		GB
+		TB
+		PB
+		EB
+	)
+
+	var unit string
+	var value float64
+
+	switch {
+	case size < KB:
+		unit = "B"
+		value = float64(size)
+	case size < MB:
+		unit = "KB"
+		value = float64(size) / KB
+	case size < GB:
+		unit = "MB"
+		value = float64(size) / MB
+	case size < TB:
+		unit = "GB"
+		value = float64(size) / GB
+	case size < PB:
+		unit = "TB"
+		value = float64(size) / TB
+	case size < EB:
+		unit = "PB"
+		value = float64(size) / PB
+	default:
+		unit = "EB"
+		value = float64(size) / EB
+	}
+
+	return fmt.Sprintf("%.2f %s", value, unit)
 }

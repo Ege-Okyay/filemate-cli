@@ -16,12 +16,13 @@ func registerCommands() {
 	helpers.RegisterCommand("version", cmd.VersionCommand, "Shows version", "filemate version", "Info", 0, false)
 
 	// AUTH COMMANDS
-	helpers.RegisterCommand("sign-up", cmd.SignUpCommand, "Creates an account with given username, password and email", "filemate sign-up [username] [email] [password]", "Authentication", 3, false)
-	helpers.RegisterCommand("login", cmd.LoginCommand, "Logs in the user with the entered username or email and password", "filemate login [username or email] [password]", "Authentication", 2, false)
-	helpers.RegisterCommand("logout", cmd.LogoutCommand, "Logs out the user", "filemate logout", "Authentication", 0, false)
+	helpers.RegisterCommand("sign-up", cmd.SignUpCommand, "Creates an account with given username, password and email.", "filemate sign-up [username] [email] [password]", "Authentication", 3, false)
+	helpers.RegisterCommand("login", cmd.LoginCommand, "Logs in the user with the entered username or email and password.", "filemate login [username or email] [password]", "Authentication", 2, false)
+	helpers.RegisterCommand("logout", cmd.LogoutCommand, "Logs out the user.", "filemate logout", "Authentication", 0, false)
 
 	// FILE COMMANDS
-	helpers.RegisterCommand("upload-file", cmd.UploadFileCommand, "Uploads the specified file to the server", "filemate upload-file [file name]", "File", 1, false)
+	helpers.RegisterCommand("upload-file", cmd.UploadFileCommand, "Uploads the specified file to the server.", "filemate upload-file [file name]", "File", 1, false)
+	helpers.RegisterCommand("files", cmd.GetAllFilesCommand, "Lists all the files that are uploaded.", "filemate files", "File", 0, false) // TODO: Add a limit parameter
 }
 
 // CliProgram is the main entry point for the Filemate CLI program.
