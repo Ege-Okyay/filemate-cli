@@ -10,11 +10,6 @@ import (
 )
 
 func registerCommands() {
-	// DEBUG COMMANDS
-	helpers.RegisterCommand("hello", cmd.HelloCmd, "DEBUG COMMAND Says Hello", "filemate hello [name]", "Debug", 1, false)
-	helpers.RegisterCommand("health-check", cmd.HealthCheckCmd, "DEBUG COMMAND Sends health check request to the api", "filemate health-check", "Debug", 0, false)
-	helpers.RegisterCommand("post-check", cmd.PostCheckCmd, "DEBUG COMMAND Sends post check request to the api", "filemate post-check [arguments]", "Debug", 1, false)
-
 	// INFO COMMANDS
 	helpers.RegisterCommand("help", cmd.HelpCmd, "Shows Help", "filemate help", "Info", 0, true)
 	helpers.RegisterCommand("version", cmd.VersionCommand, "Shows version", "filemate version", "Info", 0, false)
@@ -23,6 +18,9 @@ func registerCommands() {
 	helpers.RegisterCommand("sign-up", cmd.SignUpCommand, "Creates an account with given username, password and email", "filemate sign-up [username] [email] [password]", "Authentication", 3, false)
 	helpers.RegisterCommand("login", cmd.LoginCommand, "Logs in the user with the entered username or email and password", "filemate login [username or email] [password]", "Authentication", 2, false)
 	helpers.RegisterCommand("logout", cmd.LogoutCommand, "Logs out the user", "filemate logout", "Authentication", 0, false)
+
+	// FILE COMMANDS
+	helpers.RegisterCommand("upload-file", cmd.UploadFileCommand, "Uploads the specified file to the server", "filemate upload-file [file name]", "File", 1, false)
 }
 
 func CliProgram() error {

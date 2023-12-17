@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func SendHttpRequest(route string, method string, jsonBody []byte) (*http.Response, error) {
+func SendHttpRequest(route string, method string, jsonBody []byte, multipartBody *bytes.Buffer, multipartBoundary string, authToken string) (*http.Response, error) {
 	requestURL := fmt.Sprintf(os.Getenv("API_URL") + route)
 
 	var req *http.Request
@@ -16,19 +16,35 @@ func SendHttpRequest(route string, method string, jsonBody []byte) (*http.Respon
 	switch method {
 	case "GET":
 		req, reqErr = http.NewRequest(http.MethodGet, requestURL, nil)
+
 		break
 	case "POST":
-		if jsonBody == nil {
-			return nil, fmt.Errorf("Client: Empty request body!")
+		if multipartBody == nil {
+			// The request is sending a json content
+			req, reqErr = http.NewRequest(http.MethodPost, requestURL, bytes.NewReader(jsonBody))
+
+			req.Header.Set("Content-Type", "application/json")
+		} else {
+			// The request is sending a file
+			req, reqErr = http.NewRequest(http.MethodPost, requestURL, bytes.NewReader(multipartBody.Bytes()))
+
+			if multipartBoundary == "" {
+				reqErr = fmt.Errorf("Empty multipart/form-data boundary")
+				break
+			}
+
+			contentTypeHeader := fmt.Sprintf("multipart/form-data; boundary=%s", multipartBoundary)
+
+			req.Header.Set("Content-Type", contentTypeHeader)
 		}
 
-		bodyReader := bytes.NewReader(jsonBody)
-		req, reqErr = http.NewRequest(http.MethodPost, requestURL, bodyReader)
-
-		req.Header.Set("Content-Type", "application/json")
 		break
 	default:
-		break
+		return nil, fmt.Errorf("Client: Unsupported HTTP method: %s\n", method)
+	}
+
+	if authToken != "" {
+		req.Header.Set("Authorization", authToken)
 	}
 
 	if reqErr != nil {

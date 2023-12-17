@@ -30,7 +30,7 @@ func SignUpCommand(args ...interface{}) {
 		log.Fatal(err)
 	}
 
-	res, err := helpers.SendHttpRequest("/auth/sign-up", "POST", json_data)
+	res, err := helpers.SendHttpRequest("/auth/sign-up", "POST", json_data, nil, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func LoginCommand(args ...interface{}) {
 		log.Fatal(err)
 	}
 
-	res, err := helpers.SendHttpRequest("/auth/login", "POST", json_data)
+	res, err := helpers.SendHttpRequest("/auth/login", "POST", json_data, nil, "", "")
 	if err != nil {
 		log.Fatal(err)
 	}

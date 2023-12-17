@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func VersionCommand(args []interface{}) {
+func VersionCommand(args ...interface{}) {
 	currentVersion := os.Getenv("VERSION")
 
 	fmt.Printf("filemate version %s\n", currentVersion)
