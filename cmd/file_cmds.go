@@ -3,7 +3,9 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"mime"
 	"os"
 	"text/template"
 
@@ -40,30 +42,7 @@ func GetAllFilesCommand(args ...interface{}) {
 		return
 	}
 
-	// Send a GET request to retrieve the list of files from the server
-	res, err := helpers.SendHttpRequest("/file/files", "GET", nil, nil, "", config.GetUserToken())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Decode the response body into a map
-	var resFormat map[string]interface{}
-	json.NewDecoder(res.Body).Decode(&resFormat)
-
-	// Check for errors in the response
-	if resFormat["error"] != nil {
-		fmt.Println(resFormat["error"])
-		return
-	}
-
-	// Extract the raw files data from the response
-	filesRaw, ok := resFormat["files"].([]interface{})
-	if !ok {
-		log.Fatal("Invalid or missing 'files' key in the response.")
-	}
-
-	// Unmarshal the raw files data into a slice of File structs
-	files, err := helpers.UnmarshalFileEntires(filesRaw)
+	files, err := helpers.GetFiles()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,9 +65,71 @@ Use "filemate file-details [file name]" for more information about a file.
 }
 
 // DownloadFileCommand handles the "download-file" command, allowing users to download a specified file from the server.
-// Implementation is pending.
 func DownloadFileCommand(args ...interface{}) {
-	// Implementation pending
+	// Check if the user is logged in
+	if config.GetUserToken() == "" {
+		fmt.Println("Login first")
+		return
+	}
+
+	fileName := args[0].([]interface{})[0].(string)
+	files, err := helpers.GetFiles()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var fileID string
+	for _, file := range files {
+		if file.FileName == fileName {
+			fileID = file.ID
+			break
+		}
+	}
+
+	route := fmt.Sprintf("/file/download?fileId=%s", fileID)
+	res, err := helpers.SendHttpRequest(route, "GET", nil, nil, "", config.GetUserToken())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resFormat map[string]interface{}
+	json.NewDecoder(res.Body).Decode(&resFormat)
+
+	if resFormat["error"] != nil {
+		fmt.Println(resFormat["error"])
+		return
+	}
+
+	contentDisposition := res.Header.Get("Content-Disposition")
+	if contentDisposition == "" {
+		fmt.Println("Error: Content-Disposition header not found in the response.")
+		return
+	}
+
+	_, params, err := mime.ParseMediaType(contentDisposition)
+	if err != nil {
+		fmt.Println("Error parsing Content-Disposition header: ", err)
+		return
+	}
+
+	fileNameFromHeader := params["filename"]
+
+	file, err := os.Create(fileNameFromHeader)
+	if err != nil {
+		fmt.Println("Error creating file: ", err)
+		return
+	}
+	defer file.Close()
+
+	fmt.Println("---DEBUG--- RESPONSE BODY : \n", res.Body)
+
+	_, err = io.Copy(file, res.Body)
+	if err != nil {
+		fmt.Println("Error copying response body to file: ", err)
+		return
+	}
+
+	fmt.Println("File downloaded successfully: ", fileNameFromHeader)
 }
 
 // DeleteFileCommand handles the "delete-file" command, allowing users to delete a specified file from the server.

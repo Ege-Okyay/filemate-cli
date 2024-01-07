@@ -40,7 +40,6 @@ func SignUpCommand(args ...interface{}) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer res.Body.Close()
 
 	// Decode the response JSON
 	var resFormat map[string]interface{}
@@ -83,7 +82,6 @@ func LoginCommand(args ...interface{}) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer res.Body.Close()
 
 	// Decode the response JSON
 	var resFormat map[string]interface{}

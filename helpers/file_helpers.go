@@ -76,6 +76,38 @@ func UploadFile(fileName string) error {
 	return nil
 }
 
+func GetFiles() ([]structs.File, error) {
+	// Send a GET request to retrieve the list of files from the server
+	res, err := SendHttpRequest("/file/files", "GET", nil, nil, "", config.GetUserToken())
+	if err != nil {
+		return nil, err
+	}
+
+	// Decode the response body into a map
+	var resFormat map[string]interface{}
+	json.NewDecoder(res.Body).Decode(&resFormat)
+
+	// Check for errors in the response
+	if resFormat["error"] != nil {
+		return nil, fmt.Errorf(resFormat["error"].(string))
+	}
+
+	// Extract the raw files data from the response
+	filesRaw, ok := resFormat["files"].([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("Invalid or missing 'files' key in the response.")
+	}
+
+	// Unmarshal the raw files data into a slice of File structs
+	files, err := UnmarshalFileEntires(filesRaw)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the files
+	return files, nil
+}
+
 func UnmarshalFileEntires(filesRaw []interface{}) ([]structs.File, error) {
 	var files []structs.File
 

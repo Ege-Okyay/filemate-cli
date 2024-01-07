@@ -23,6 +23,7 @@ func registerCommands() {
 	// FILE COMMANDS
 	helpers.RegisterCommand("upload-file", cmd.UploadFileCommand, "Uploads the specified file to the server.", "filemate upload-file [file name]", "File", 1, false)
 	helpers.RegisterCommand("files", cmd.GetAllFilesCommand, "Lists all the files that are uploaded.", "filemate files", "File", 0, false) // TODO: Add a limit parameter
+	helpers.RegisterCommand("download-file", cmd.DownloadFileCommand, "Downloads the file with the given name.", "filemate download-file [file name]", "File", 1, false)
 }
 
 // CliProgram is the main entry point for the Filemate CLI program.
